@@ -1,12 +1,4 @@
-export interface Config {
-  url: string;
-  projectCode: string;
-  organizationId: string;
-  fileServerId: string;
-  userId: string;
-}
 
- 
 export const SigningDocumentStatus = {
   SUCCESS: '901',
   INVALID_PARAMETER: '902',

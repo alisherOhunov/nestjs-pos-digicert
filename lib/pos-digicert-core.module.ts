@@ -2,8 +2,8 @@ import { DynamicModule, Global, Module, Provider } from '@nestjs/common';
 import {
     PosDigicertModuleAsyncOptions,
     PosDigicertModuleOptions,
-    PosDigicertModuleOptionsFactory
-} from './interface/module-options.interface';
+    PosDigicertModuleOptionsFactory,
+} from './interfaces/module-options.interface';
 import { PosDigicertDigitalSigning } from './services/pos-digicert-digital-signing.service';
 import { SftpService } from './services/sftp.service';
 import { POS_DIGICERT_MODULE_OPTIONS } from './constants';
@@ -57,7 +57,11 @@ export class PosDigicertCoreModule {
         if (options.useFactory) {
             return {
                 provide: POS_DIGICERT_MODULE_OPTIONS,
-                useFactory: options.useFactory,
+                /* eslint-disable-next-line @typescript-eslint/no-explicit-any  */
+                useFactory: async (...args: any[]) => {
+                    const result = await options.useFactory(...args);
+                    return result;
+                },
                 inject: options.inject || [],
             };
         }

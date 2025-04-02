@@ -1,17 +1,9 @@
-import Client from 'ssh2-sftp-client';
+import * as Client from 'ssh2-sftp-client';
 import type { Readable, Writable } from 'stream';
 
 import { SftpError } from '../errors/sftp-server.error';
-import { Injectable } from '@nestjs/common';
+import { SftpOptions } from '../interfaces/sftp-options.interface';
 
-export interface Config {
-  host: string;
-  username: string;
-  password: string;
-  port: number | undefined;
-}
-
-@Injectable()
 export class SftpService {
   private client: Client;
   private readonly host: string;
@@ -20,7 +12,7 @@ export class SftpService {
   private readonly port: number | undefined;
   private isConnected = false;
 
-  constructor(private config: Config) {
+  constructor(private config: SftpOptions) {
     this.client = new Client();
     this.host = config.host;
     this.username = config.username;

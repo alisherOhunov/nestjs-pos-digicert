@@ -3,7 +3,6 @@ import { createClient } from 'soap';
 
 import { PosDigicertDigitalSigningError } from '../errors/pos-digicert-digital-signing.error';
 import type {
-  Config,
   ErrorWithMessage,
   RequestBulkIdResponse,
   RequestBulkInput,
@@ -14,15 +13,14 @@ import type {
   ValidationParameters,
   VerifyCertInput,
   VerifyRoamingCertResponse,
-} from '../types/pos-digicert-digital-signing';
+} from '../interfaces/pos-digicert-digital-signing.interface';
 import {
   SigningDocumentMessages,
   SigningDocumentStatus,
-} from '../types/pos-digicert-digital-signing';
+} from '../interfaces/pos-digicert-digital-signing.interface';
 import { PosDigicertDigitalSigningValidationError } from '../errors/pos-digicert-digital-signing-validation.error';
-import { Injectable } from '@nestjs/common';
+import { PosDigicertOptions } from 'lib/interfaces/pos-digicert-options.interface';
 
-@Injectable()
 export class PosDigicertDigitalSigning {
   private readonly url: string;
   private readonly projectCode: string;
@@ -31,7 +29,7 @@ export class PosDigicertDigitalSigning {
   private readonly userId: string | undefined;
   private client: Client | null = null;
 
-  constructor(config: Config) {
+  constructor(config: PosDigicertOptions) {
     this.url = config.url;
     this.projectCode = config.projectCode;
     this.organizationId = config.organizationId;
@@ -69,7 +67,6 @@ export class PosDigicertDigitalSigning {
 
   async signRoamingPdfConfigD(input: SignRoamingPdfConfigDInput) {
     await this.ensureClientInitialized();
-
     this.validateRequiredParameters({
       userId: input.userId,
       orgId: input.orgId,
@@ -87,6 +84,7 @@ export class PosDigicertDigitalSigning {
           },
         );
 
+      console.log('Result', result);
       return {
         ...result,
         statusMessage: SigningDocumentMessages[result.statusCode],
@@ -187,6 +185,7 @@ export class PosDigicertDigitalSigning {
         return;
       }
 
+      console.log('Args', args);  
       this.client[method](args, (err: unknown, result: T) => {
         if (err) {
           reject(
@@ -229,6 +228,7 @@ export class PosDigicertDigitalSigning {
       .filter(param => !param.value)
       .map(param => param.name);
 
+    
     if (missingParams.length > 0) {
       const errorMessage = `ERROR: The following parameters must be provided either in configuration or input: ${missingParams.join(', ')}`;
       throw new PosDigicertDigitalSigningValidationError(errorMessage);
@@ -238,18 +238,10 @@ export class PosDigicertDigitalSigning {
   private buildVerificationParams(input: Partial<ValidationParameters>) {
     const params: Record<string, string | undefined> = {};
 
-    if (input.userId !== undefined) {
       params.userId = input.userId ?? this.userId;
-    }
-
-    if (input.orgId !== undefined) {
       params.orgId = input.orgId ?? this.organizationId;
-    }
-
-    if (input.fileServerId !== undefined) {
       params.fileServerId = input.fileServerId ?? this.fileServerId;
-    }
-
+    console.log(params);
     return params;
   }
 

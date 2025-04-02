@@ -1,8 +1,6 @@
 import { Module, DynamicModule } from '@nestjs/common';
-import { PosDigicertModuleAsyncOptions } from './interface/module-options.interface';
+import { PosDigicertModuleAsyncOptions } from './interfaces/module-options.interface';
 import { PosDigicertCoreModule } from './pos-digicert-core.module';
-import { PosDigicertDigitalSigning } from './services/pos-digicert-digital-signing.service';
-import { SftpService } from './services/sftp.service';
 
 @Module({})
 export class PosDigicertDigitalSigningModule {
@@ -10,7 +8,27 @@ export class PosDigicertDigitalSigningModule {
         return {
             module: PosDigicertDigitalSigningModule,
             imports: [PosDigicertCoreModule.forRootAsync(options)],
-            exports: [PosDigicertDigitalSigning, SftpService],
+            exports: [PosDigicertCoreModule],
         };
     }
 }
+
+/* THIS IS FOR CONFIGURATION SHARED_MODULE SANSOLS*/
+
+// PosDigicertDigitalSigningModule.forRootAsync({
+//     useFactory: (configService: AppConfigService) => {
+//         const options = {
+//             digicertOptions: {
+//                 url: configService.signingDocumentConfig.baseUrl,
+//                 projectCode: configService.signingDocumentConfig.projectCode,
+//                 organizationId: configService.signingDocumentConfig.organizationId,
+//                 fileServerId: configService.signingDocumentConfig.fileServerId,
+//                 userId: configService.signingDocumentConfig.userId,
+//             },
+//             sftpOptions: configService.signingServerFtpConfig,
+//         };
+//         console.log('Factory returning options:', options);
+//         return options;
+//     },
+//     inject: [AppConfigService],
+// }),
